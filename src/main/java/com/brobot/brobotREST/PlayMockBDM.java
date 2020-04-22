@@ -1,6 +1,7 @@
-package com.brobot.brobotREST.Brobots.BDM.Tests;
+package com.brobot.brobotREST;
 
 import com.brobot.brobotREST.Brobots.BDM.GameStates.GameStateEnumsBDM;
+import com.brobot.brobotREST.Brobots.BDM.Tests.MockBDM;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
