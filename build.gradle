@@ -1,3 +1,14 @@
+buildscript {
+	repositories {
+		jcenter()
+
+	}
+	dependencies {
+		//Check for the latest version here: http://plugins.gradle.org/plugin/com.jfrog.artifactory
+		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
+	}
+}
+
 plugins {
 	id 'org.springframework.boot' version '2.2.6.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
@@ -32,16 +43,6 @@ dependencies {
 
 test {
 	useJUnitPlatform()
-}
-buildscript {
-	repositories {
-		jcenter()
-
-	}
-	dependencies {
-		//Check for the latest version here: http://plugins.gradle.org/plugin/com.jfrog.artifactory
-		classpath "org.jfrog.buildinfo:build-info-extractor-gradle:4+"
-	}
 }
 
 allprojects {
