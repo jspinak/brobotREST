@@ -1,10 +1,14 @@
 package com.brobot.brobotREST;
 
-import com.brobot.brobotREST.Brobots.BDM.GameStates.GameStateEnumsBDM;
-import com.brobot.brobotREST.Brobots.BDM.Tests.MockBDM;
+import com.brobot.brobotREST.brobots.BDM.GameStates.StateEnumsBDM;
+import com.brobot.brobotREST.brobots.BDM.Tests.MockBDM;
+import com.brobot.brobotREST.database.state.StateData;
+import com.brobot.brobotREST.database.state.StateRIPData;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.ConfigurableApplicationContext;
+
+import java.util.List;
 
 @SpringBootApplication
 public class PlayMockBDM {
@@ -23,13 +27,15 @@ public class PlayMockBDM {
 
         MockBDM blackDesert = context.getBean(MockBDM.class);
 
-        blackDesert.printGameState(GameStateEnumsBDM.CAMP);
-        blackDesert.printGameState(GameStateEnumsBDM.GARTEN);
+        List<StateData> allStates = blackDesert.getAllStates();
+        List<StateRIPData> allRIPs = blackDesert.getAllRIPs();
+        blackDesert.printState(StateEnumsBDM.CAMP);
+        blackDesert.printState(StateEnumsBDM.GARTEN);
         blackDesert.printRatios();
-        blackDesert.printTree(GameStateEnumsBDM.CAMP);
-        blackDesert.testFinder(GameStateEnumsBDM.CAMP_SIDEBAR, GameStateEnumsBDM.POSTEN);
-        blackDesert.testFinder(GameStateEnumsBDM.CAMP_SIDEBAR, GameStateEnumsBDM.ERGEBNIS_DES_POSTEN_HANDELS);
-        blackDesert.testFinder(GameStateEnumsBDM.POSTEN, GameStateEnumsBDM.KOMMANDOPOSTEN);
-        blackDesert.gotoState(GameStateEnumsBDM.KOMMANDOPOSTEN);
+        blackDesert.printTree(StateEnumsBDM.CAMP);
+        blackDesert.testFinder(StateEnumsBDM.CAMP_SIDEBAR, StateEnumsBDM.POSTEN);
+        blackDesert.testFinder(StateEnumsBDM.CAMP_SIDEBAR, StateEnumsBDM.ERGEBNIS_DES_POSTEN_HANDELS);
+        blackDesert.testFinder(StateEnumsBDM.POSTEN, StateEnumsBDM.KOMMANDOPOSTEN);
+        blackDesert.gotoState(StateEnumsBDM.KOMMANDOPOSTEN);
     }
 }
