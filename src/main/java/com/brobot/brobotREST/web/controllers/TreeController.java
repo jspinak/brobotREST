@@ -15,7 +15,7 @@ import java.security.Principal;
 
 @Component
 public class TreeController {
-
+/*
     private TreeService treeService;
 
     public TreeController(TreeService treeService) {
@@ -29,5 +29,5 @@ public class TreeController {
         model.addAttribute(tree);
         return "";
     }
-
+*/
 }

@@ -1,12 +1,10 @@
 package com.brobot.brobotREST.reports;
 
-import com.brobot.brobotREST.dataAccess.StateRepository;
-import com.brobot.brobotREST.database.primatives.RegionImagePair;
-import com.brobot.brobotREST.database.state.StateData;
-import com.brobot.brobotREST.database.state.StateRIPData;
-import com.brobot.brobotREST.stateData.methods.StateObjectCollectionMethods;
-import com.brobot.brobotREST.stateData.methods.StateObjectDataMethods;
-import com.brobot.brobotREST.database.primatives.Image;
+import com.brobot.brobotREST.database.primitives.image.Image;
+import com.brobot.brobotREST.database.primitives.regionImagePairs.RegionImagePair;
+import com.brobot.brobotREST.database.state.state.State;
+import com.brobot.brobotREST.database.state.stateObject.stateImageObject.StateImageObject;
+import com.brobot.brobotREST.web.services.StateService;
 import org.springframework.stereotype.Component;
 
 import java.util.Collection;
@@ -15,25 +13,24 @@ import java.util.Set;
 @Component
 public class FoundRatios {
 
-    private StateRepository stateRepository;
-    private StateObjectCollectionMethods stateObjectCollectionMethods;
-    private StateObjectDataMethods stateObjectDataMethods;
+    private StateService stateService;
 
-    public FoundRatios(StateRepository stateRepository,
-                       StateObjectCollectionMethods stateObjectCollectionMethods,
-                       StateObjectDataMethods stateObjectDataMethods) {
-        this.stateRepository = stateRepository;
-        this.stateObjectCollectionMethods = stateObjectCollectionMethods;
-        this.stateObjectDataMethods = stateObjectDataMethods;
+    public FoundRatios(StateService stateService) {
+        this.stateService = stateService;
     }
 
     public void printRatios() {
-        Collection<StateData> states = stateRepository.findAll();
-        for (StateData state : states) {
-            Set<StateRIPData> stateRIPs = stateObjectCollectionMethods.getRIPs(state.getStateObjects());
-            for (StateRIPData stateRIP : stateRIPs) {
-                System.out.print("__"); stateObjectDataMethods.print(stateRIP,":\n");
-                Set<RegionImagePair> pairs = stateRIP.getRegionImagePairs().getPairs();
+        Collection<State> states = stateService.findAllStates();
+        for (State state : states) {
+            Set<StateImageObject> stateImageObjects = state.getStateImages();
+            for (StateImageObject stateImageObject : stateImageObjects) {
+                System.out.print("__");
+                System.out.println(stateImageObject.getName());
+                System.out.print("Image found ratio: ");
+                printRatioIfExists(stateImageObject.getImage());
+                System.out.println();
+                System.out.print("RIP found ratios: \n");
+                Set<RegionImagePair> pairs = stateImageObject.getRegionImagePairs().getPairs();
                 for (RegionImagePair pair : pairs) {
                     printRatioIfExists(pair.getImage());
                     testPrint(pair.getImage());
@@ -44,7 +41,7 @@ public class FoundRatios {
 
     private boolean printRatioIfExists(Image image) {
         if (image.getTimesSearched() == 0) return false;
-        System.out.print(image.getFoundRatio()+" ");
+        System.out.print(image.getFoundRatio() + " ");
         image.print();
         System.out.println();
         return true;

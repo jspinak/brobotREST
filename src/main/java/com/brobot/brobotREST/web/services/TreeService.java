@@ -1,17 +1,17 @@
 package com.brobot.brobotREST.web.services;
 
-import com.brobot.brobotREST.database.state.StateData;
+import com.brobot.brobotREST.database.state.state.States;
+import com.brobot.brobotREST.manageStates.StateFinder;
 import com.brobot.brobotREST.primatives.enums.StateEnum;
 import com.brobot.brobotREST.reports.Tree;
-import com.brobot.brobotREST.stateData.wrappers.StateObjectWrapper;
-import com.brobot.brobotREST.stateData.wrappers.StateObjectWrapperFactory;
-import com.brobot.brobotREST.statesSteuern.StateFinder;
 import org.springframework.stereotype.Component;
 
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Component
 public class TreeService {
+    /*
 
     private StateService stateService;
     private StateObjectWrapperFactory stateObjectWrapperFactory;
@@ -28,8 +28,7 @@ public class TreeService {
     }
 
     public Tree makeTree(StateEnum startingStateEnum) {
-        List<StateData> startStates = stateFinder.getAllActiveStates(
-                stateService.findByName(startingStateEnum));
+        States startStates = mockStateManagement.getOneLevelCoexistingStates(expectedMainState);
         tree = new Tree(startingStateEnum.toString());
         //startStates.forEach(sS -> {
         //    sS.setTreeItem(new TreeItem(sS.getName()));
@@ -42,9 +41,9 @@ public class TreeService {
         return tree;
     }
 
-    private void prepareObjectListsAndRecurseTree(List<StateData> startStates, int indent,
-                                                  Set<String> gameStatesVisited) {
-        for (StateData startState : startStates) {
+    private void prepareObjectListsAndRecurseTree(Set<StateEnum> startStates, int indent,
+                                                  Set<StateEnum> gameStatesVisited) {
+        for (StateEnum startState : startStates) {
             List<StateObjectWrapper> stateObjects =
                     stateObjectWrapperFactory.getAllStateObjectWrappers(startState);
             if (!stateObjects.isEmpty()) {
@@ -57,44 +56,47 @@ public class TreeService {
         }
     }
 
-    private Set<String> getActivatedStates(StateObjectWrapper stateObjectWrapper) {
+    private Set<StateEnum> getActivatedStates(StateObjectWrapper stateObjectWrapper) {
         //System.out.print(" [activated]by "+stateObject.getStatesToActivateOnClick());
         //stateObject.print(); System.out.println();
         return stateObjectWrapper.getStateObject().getStatesActivatedOnClick();
     }
 
-    public Set<String> getActivatingStates(StateObjectWrapper stateObjectWrapper) {
-        Set<String> activatingState = new HashSet<>();
+    public Set<StateEnum> getActivatingStates(StateObjectWrapper stateObjectWrapper) {
+        Set<StateEnum> activatingState = new HashSet<>();
         activatingState.add(stateObjectWrapper.getStateObject().getOwnerStateName());
         //System.out.print(" activatingState / stateObject : "); stateObject.print(); System.out.println();
         return activatingState;
     }
 
-    private Set<String> getNextStates(StateObjectWrapper stateObjectWrapper, String objectType) {
+    private Set<StateEnum> getNextStates(StateObjectWrapper stateObjectWrapper, String objectType) {
         //System.out.print("get next state: "); stateObject.print(" ");
         if (objectType.equals("state object")) return getActivatedStates(stateObjectWrapper);
         else if (objectType.equals("activating object")) return getActivatingStates(stateObjectWrapper);
         return new HashSet<>();
     }
 
-    private void recurseTree(String startState, int indent, Set<String> gameStatesVisited,
+    private void recurseTree(StateEnum startState, int indent, Set<StateEnum> gameStatesVisited,
                              List<StateObjectWrapper> stateObjects) {
-        for (int i=0; i<indent; i++) if (i%2==0) System.out.print("|"); else System.out.print(" ");
-        System.out.println("__"+startState+"__");
+        for (int i = 0; i < indent; i++)
+            if (i % 2 == 0) System.out.print("|");
+            else System.out.print(" ");
+        System.out.println("__" + startState + "__");
         gameStatesVisited.add(startState);
         indent++;
         for (StateObjectWrapper stateObject : stateObjects) {
-            for (int i=0; i<indent; i++) if (i%2==0) System.out.print("|"); else System.out.print(" ");
+            for (int i = 0; i < indent; i++)
+                if (i % 2 == 0) System.out.print("|");
+                else System.out.print(" ");
             System.out.print(".");
             System.out.print(stateObject.getStateObject().getName());
-            Set<String> nextStates = getNextStates(stateObject,"state object");
+            Set<StateEnum> nextStates = getNextStates(stateObject, "state object");
             if (nextStates.isEmpty()) System.out.println();
-            for (String stateName : nextStates) {
+            for (StateEnum stateName : nextStates) {
                 if (gameStatesVisited.contains(stateName)) {
-                    System.out.println("->"+ stateName);
+                    System.out.println("->" + stateName);
                     //stateObject.getTreeItem().getChildren().add(new TreeItem(gameStateEnum)); //add just the name
-                }
-                else {
+                } else {
                     System.out.println();
                     //stateObject.getTreeItem().getChildren().add(gameStateRepository.get(gameStateEnum).newTreeItem());
                     prepareObjectListsAndRecurseTree(
@@ -103,5 +105,7 @@ public class TreeService {
             }
         }
     }
+
+     */
 
 }
