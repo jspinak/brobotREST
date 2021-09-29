@@ -4,8 +4,10 @@ import com.brobot.brobotREST.actions.ActionInterface;
 import com.brobot.brobotREST.actions.ActionOptions;
 import com.brobot.brobotREST.actions.ObjectCollection;
 import com.brobot.brobotREST.actions.methods.find.Find;
+import com.brobot.brobotREST.actions.methods.wrappers.Text;
 import com.brobot.brobotREST.database.primitives.match.MatchObject;
 import com.brobot.brobotREST.database.primitives.match.Matches;
+import com.brobot.brobotREST.database.state.stateObject.otherStateObjects.StateRegion;
 import com.brobot.brobotREST.mock.Mock;
 import com.brobot.brobotREST.actions.methods.wrappers.Wait;
 import org.springframework.stereotype.Component;
@@ -15,12 +17,12 @@ import java.time.LocalDateTime;
 @Component
 public class GetText implements ActionInterface {
 
-    private Mock mock;
     private Find find;
     private Wait wait;
+    private Text text;
 
-    public GetText(Mock mock, Find find, Wait wait) {
-        this.mock = mock;
+    public GetText(Text text, Find find, Wait wait) {
+        this.text = text;
         this.find = find;
         this.wait = wait;
     }
@@ -48,8 +50,7 @@ public class GetText implements ActionInterface {
         while (LocalDateTime.now().isBefore(startTime.plusNanos(nanoTimeout)) && matches.getText().equals("")) {
             nanoTimeout = (long) (actionOptions.getMaxWait() * Math.pow(10, 9));
             for (MatchObject matchObject : matches.getMatchObjects()) {
-                if (mock.isActive()) matchObject.setText("Sample Mock Text");
-                else matchObject.setText(matchObject.getMatch().text());
+                text.text(matchObject);
             }
         }
         matches.setDuration(matches.getDuration().plusNanos(nanoTimeout));

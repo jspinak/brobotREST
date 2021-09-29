@@ -45,15 +45,8 @@ public class Drag implements ActionInterface {
             dragTo = Optional.of(new Location(dragFrom.get()));
         }
         if (!dragFrom.isPresent() || !dragTo.isPresent()) return matches; // default status is false
-        Location adjustedDragTo = adjustDragTo(dragTo.get(), actionOptions);
-        matches.setSuccess(dragLocation.drag(dragFrom.get(), adjustedDragTo, actionOptions));
+        matches.setSuccess(dragLocation.drag(dragFrom.get(), dragTo.get(), actionOptions));
         return matches;
-    }
-
-    private Location adjustDragTo(Location dragTo, ActionOptions actionOptions) {
-        dragTo.setX(dragTo.getX() + actionOptions.getDragToOffsetX());
-        dragTo.setY(dragTo.getY() + actionOptions.getDragToOffsetY());
-        return dragTo;
     }
 
     private Optional<Location> getLocation(ActionOptions.ObjectType objectType,

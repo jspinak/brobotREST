@@ -1,6 +1,7 @@
 package com.brobot.brobotREST.database.state.state;
 
 import com.brobot.brobotREST.primatives.enums.StateEnum;
+import com.brobot.brobotREST.primatives.enums.StateGroup;
 import lombok.Data;
 
 import java.util.HashMap;

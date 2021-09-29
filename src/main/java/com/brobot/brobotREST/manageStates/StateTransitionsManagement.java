@@ -1,6 +1,6 @@
 package com.brobot.brobotREST.manageStates;
 
-import com.brobot.brobotREST.actions.CommonActions;
+import com.brobot.brobotREST.actions.composites.CommonActions;
 import com.brobot.brobotREST.database.state.state.State;
 import com.brobot.brobotREST.primatives.enums.StateEnum;
 import com.brobot.brobotREST.web.services.StateService;
@@ -8,9 +8,6 @@ import com.brobot.brobotREST.web.services.StateTransitionsService;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
-import java.util.function.BooleanSupplier;
-
-import static com.brobot.brobotREST.manageStates.StateMemory.Enum.PREVIOUS;
 
 /* problem with the open function in state management is that you can't always go from one state
 to another just by a simple click on the image. for this reason you might want to create an interface
@@ -113,6 +110,7 @@ public class StateTransitionsManagement {
             if (!pathVisited(path)) { // if path visited, get the next path
                 if (path.size() == 1 && path.get(0) == stateToOpen) return true;
                 for (int i = 0; i < path.size() - 1; i++) {
+                    //System.out.println("\npath size = "+path.size()+" current state = "+path.get(i));
                     if (!stateTransition(path.get(i), path.get(i + 1))) break;
                     activeStates.add(path.get(i + 1));
                     if (i + 2 == path.size()) return true;
@@ -130,7 +128,10 @@ public class StateTransitionsManagement {
     private boolean stateTransition(StateEnum fromStateEnum, StateEnum toStateEnum) {
         if (fromStateEnum == null || toStateEnum == null) return true;
         Optional<StateTransitions> optTargetStateTransitions = stateTransitionsService.getTransitions(toStateEnum);
-        if (!optTargetStateTransitions.isPresent()) return false;
+        if (!optTargetStateTransitions.isPresent()) {
+            System.out.print("'to state' "+toStateEnum+" not a valid transition| ");
+            return false;
+        }
         Set<StateEnum> activeStatesBeforeTransition = new HashSet<>(stateFinder.getAllActiveStates());
         if (stateTransitionsService.doTransition(fromStateEnum, toStateEnum) &&
                 optTargetStateTransitions.get().finishOpen()) {

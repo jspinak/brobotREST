@@ -21,11 +21,29 @@ public class StateRegion implements StateObject {
     private int timesClickedWithAction = 0;
     private Position position = new Position(50, 50);
     private Map<Position.Name, Position> anchors = new HashMap<>();
+    private String mockText = "mock text";
 
+    //think about deleting this field, it may be confusing and can easily be replaced by a separate region
     //sometimes we need to select a region within the searchRegion and act on it. this Region may change frequently.
     private Region actionableRegion;
 
     private StateRegion() {
+    }
+
+    public int x() {
+        return searchRegion.x;
+    }
+
+    public int y() {
+        return searchRegion.y;
+    }
+
+    public int w() {
+        return searchRegion.w;
+    }
+
+    public int h() {
+        return searchRegion.h;
     }
 
     public boolean defined() {
@@ -41,6 +59,7 @@ public class StateRegion implements StateObject {
         // Positions.Name: the border of the region to define
         // Position: the location in the region to use as a defining point
         private Map<Position.Name, Position> anchors = new HashMap<>();
+        private String mockText = "mock text";
 
         private Region actionableRegion = new Region();
 
@@ -65,7 +84,12 @@ public class StateRegion implements StateObject {
         }
 
         public Builder addAnchor(Position.Name definedRegionBorder, Position location) {
-            anchors.put(definedRegionBorder, location);
+            this.anchors.put(definedRegionBorder, location);
+            return this;
+        }
+
+        public Builder setMockText(String text) {
+            this.mockText = text;
             return this;
         }
 
@@ -76,6 +100,7 @@ public class StateRegion implements StateObject {
             stateRegion.ownerStateName = ownerStateName;
             stateRegion.position = position;
             stateRegion.anchors = anchors;
+            stateRegion.mockText = mockText;
             stateRegion.actionableRegion = actionableRegion;
             return stateRegion;
         }

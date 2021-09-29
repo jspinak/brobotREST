@@ -45,7 +45,11 @@ public class ActionOptions {
     DEFINE defines every StateRegion
      */
     public enum Action {
-        FIND, CLICK, DRAG, DEFINE, TYPE, MOVE, VANISH, GET_TEXT, HIGHLIGHT
+        FIND, CLICK, DRAG, DEFINE, TYPE, MOVE, VANISH, GET_TEXT, HIGHLIGHT, SCROLL_MOUSE_WHEEL
+    }
+
+    public enum ScrollDirection {
+        UP, DOWN
     }
 
     public enum ClickUntil {
@@ -82,7 +86,7 @@ public class ActionOptions {
     private double pauseAfterEnd = 0;
     private double pauseBetweenActions = 0;
     private int numberOfActions = 1; // # of consecutive actions on the same match before moving to the next match
-    private int timesToRepeatActionUntil = 1; // repeats the action group (i.e. the action group = 3 clicks per match)
+    private int timesToRepeatActionUntil = 1; // repeats the action group (i.e. the action group = 3 clicks per match) until the condition is met
     private double pauseBetweenActionRepetitions = 0; // action group: rename these to differentiate better between for example, clicks on different matches, and the repetition of clicks on different matches multiple times
     private boolean checkConditionAfterEachAction = true; // if there are multiple matches, check for the image to appear after each click. when false, it clicks all matches and then checks for the image.
     private double maxWait = 0;
@@ -101,7 +105,8 @@ public class ActionOptions {
     // INSIDE_ANCHORS defines the region as the smallest rectangle from the anchors found
     // OUTSIDE_ANCHORS defines the region as the largest rectangle from the anchors found
     public enum DefineAs {
-        INSIDE_ANCHORS, OUTSIDE_ANCHORS, MATCH, BELOW_MATCH, ABOVE_MATCH, LEFT_OF_MATCH, RIGHT_OF_MATCH
+        INSIDE_ANCHORS, OUTSIDE_ANCHORS, MATCH, BELOW_MATCH, ABOVE_MATCH, LEFT_OF_MATCH, RIGHT_OF_MATCH,
+        FOCUSED_WINDOW
     }
 
     private DefineAs defineAs = DefineAs.MATCH;
@@ -123,6 +128,9 @@ public class ActionOptions {
     // __type__
     private double typeDelay = Settings.TypeDelay;
     private boolean clickMatchBeforeTyping = false;
+
+    // __mouse_wheel__
+    private ScrollDirection scrollDirection = ScrollDirection.UP;
 
     private ActionOptions() {
     }
@@ -174,6 +182,7 @@ public class ActionOptions {
         GetTextUntil getTextUntil = GetTextUntil.NO_CONDITION;
         private double typeDelay = Settings.TypeDelay;
         private boolean clickMatchBeforeTyping = false;
+        private ScrollDirection scrollDirection = ScrollDirection.UP;
 
         public Builder() {
         }
@@ -279,7 +288,7 @@ public class ActionOptions {
             return this;
         }
 
-        public Builder timesToRepeatActionUntil(int repeats) {
+        public Builder timesToRepeatActionUntilConditionIsMet(int repeats) {
             this.timesToRepeatActionUntil = repeats;
             return this;
         }
@@ -404,6 +413,11 @@ public class ActionOptions {
             return this;
         }
 
+        public Builder setScrollDirection(ScrollDirection scrollDirection) {
+            this.scrollDirection = scrollDirection;
+            return this;
+        }
+
         public ActionOptions build() {
             ActionOptions actionOptions = new ActionOptions();
             actionOptions.action = action;
@@ -451,6 +465,7 @@ public class ActionOptions {
             actionOptions.getTextUntil = getTextUntil;
             actionOptions.typeDelay = typeDelay;
             actionOptions.clickMatchBeforeTyping = clickMatchBeforeTyping;
+            actionOptions.scrollDirection = scrollDirection;
             return actionOptions;
         }
     }

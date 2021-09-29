@@ -78,7 +78,9 @@ public class Find implements ActionInterface {
     private void addRegions(Matches matches, ObjectCollection objectCollection) {
         for (StateRegion r : objectCollection.getStateRegions()) {
             try {
-                matches.add(new MatchObject(r.getSearchRegion().toMatch(), r));
+                MatchObject newMO = new MatchObject(r.getSearchRegion().toMatch(), r);
+                if (mockStatus.isUseMock()) newMO.setText(r.getMockText());
+                matches.add(newMO);
             } catch (Exception e) {
                 e.printStackTrace();
             }

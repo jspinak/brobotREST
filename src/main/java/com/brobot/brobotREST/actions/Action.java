@@ -19,14 +19,16 @@ public class Action {
 
     private Find find;
     private Wait wait;
+    private ScrollMouseWheel scrollMouseWheel;
 
     Map<ActionOptions.Action, ActionInterface> actions = new HashMap<>();
 
     public Action(Find find, ClickUntil clickUntil, Drag drag, DefineRegion defineRegion, Type type,
                   MoveMouse moveMouse, WaitVanish waitVanish, GetText getText, Highlight highlight,
-                  Wait wait) {
+                  Wait wait, ScrollMouseWheel scrollMouseWheel) {
         this.find = find;
         this.wait = wait;
+        this.scrollMouseWheel = scrollMouseWheel;
         actions.put(FIND, find);
         actions.put(CLICK, clickUntil);
         actions.put(DRAG, drag);
@@ -36,6 +38,7 @@ public class Action {
         actions.put(VANISH, waitVanish);
         actions.put(GET_TEXT, getText);
         actions.put(HIGHLIGHT, highlight);
+        actions.put(SCROLL_MOUSE_WHEEL, scrollMouseWheel);
     }
 
     // default options

@@ -4,6 +4,7 @@ import com.brobot.brobotREST.actions.ActionInterface;
 import com.brobot.brobotREST.actions.ActionOptions;
 import com.brobot.brobotREST.actions.ObjectCollection;
 import com.brobot.brobotREST.actions.methods.find.Find;
+import com.brobot.brobotREST.actions.methods.wrappers.App;
 import com.brobot.brobotREST.database.primitives.location.Location;
 import com.brobot.brobotREST.database.primitives.location.Position;
 import com.brobot.brobotREST.database.primitives.match.MatchObject;
@@ -13,18 +14,25 @@ import com.brobot.brobotREST.database.state.stateObject.otherStateObjects.StateL
 import org.sikuli.script.Match;
 import org.springframework.stereotype.Component;
 
+import java.util.Collections;
 import java.util.Map;
+import java.util.Optional;
 
 @Component
 public class DefineRegion implements ActionInterface {
 
     private Find find;
+    private App app;
 
-    public DefineRegion(Find find) {
+    public DefineRegion(Find find, App app) {
         this.find = find;
+        this.app = app;
     }
 
     public Matches perform(ActionOptions actionOptions, ObjectCollection... objectCollections) {
+        if (actionOptions.getDefineAs() == ActionOptions.DefineAs.FOCUSED_WINDOW) {
+            return defineAsFocusedWindow();
+        }
         Matches matches = find.perform(actionOptions, objectCollections);
         if (actionOptions.getDefineAs() == ActionOptions.DefineAs.INSIDE_ANCHORS) {
             matches.getDefinedRegions().add(getSmallestRegionFromAnchors(matches, objectCollections[0]));
@@ -39,6 +47,16 @@ public class DefineRegion implements ActionInterface {
             }
         }
         matches.setSuccess(matches.getDefinedRegion().defined());
+        return matches;
+    }
+
+    private Matches defineAsFocusedWindow() {
+        Matches matches = new Matches();
+        Optional<Region> focusedWindow = app.focusedWindow();
+        if (focusedWindow.isPresent()) {
+            matches.setDefinedRegions(Collections.singletonList(focusedWindow.get()));
+            matches.setSuccess(true);
+        } else matches.setSuccess(false);
         return matches;
     }
 

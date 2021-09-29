@@ -1,6 +1,7 @@
 package com.brobot.brobotREST.mock;
 
 import com.brobot.brobotREST.database.primitives.image.Image;
+import com.brobot.brobotREST.database.primitives.location.Location;
 import com.brobot.brobotREST.database.primitives.match.MatchObject;
 import com.brobot.brobotREST.database.primitives.match.Matches;
 import com.brobot.brobotREST.database.primitives.region.Region;
@@ -42,7 +43,10 @@ public class Mock {
     public Optional<Match> getMatch(StateImageObject stateImageObject, Region searchRegion, Image image) {
         int randomProbability = new Random().nextInt(100);
         Optional<State> state = stateService.findByName(stateImageObject.getOwnerStateName());
-        if (!state.isPresent()) return Optional.empty();
+        if (!state.isPresent()) {
+            System.out.print("unknown state| ");
+            return Optional.empty();
+        }
         int probExists = stateImageObject.getProbabilityExists() *
                 state.get().getProbabilityExists();
         if (stateImageObject.getTimesClickedWithAction() > 0 &&
@@ -51,7 +55,7 @@ public class Mock {
         boolean found = probExists > randomProbability;
         if (Report.minReportingLevel(Report.OutputLevel.HIGH)) {
             System.out.format("found=%s ", found);
-            if (!found) System.out.format("%d>=%d ", randomProbability, probExists);
+            if (!found) System.out.format("%d<%d ", probExists, randomProbability);
             //System.out.println();
         }
         if (found) return Optional.of(mockMatch.makeMockMatch(searchRegion, image));
@@ -101,5 +105,14 @@ public class Mock {
                     searchRegion.getName(), matches.getMatchObjects().size());
         return matches;
 
+    }
+
+    public boolean drag(Location from, Location to) {
+        System.out.print(" |drag:"+from.getX()+"."+from.getY()+">"+to.getX()+"."+to.getY()+"| ");
+        return true;
+    }
+
+    public Region getFocusedWindow() {
+        return new Region();
     }
 }

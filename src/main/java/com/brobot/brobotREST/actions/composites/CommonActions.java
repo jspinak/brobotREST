@@ -1,16 +1,22 @@
-package com.brobot.brobotREST.actions;
+package com.brobot.brobotREST.actions.composites;
 
+import com.brobot.brobotREST.actions.Action;
+import com.brobot.brobotREST.actions.ActionOptions;
+import com.brobot.brobotREST.actions.ObjectCollection;
 import com.brobot.brobotREST.database.primitives.image.Image;
 import com.brobot.brobotREST.database.primitives.location.Location;
+import com.brobot.brobotREST.database.primitives.location.Position;
 import com.brobot.brobotREST.database.primitives.region.Region;
 import com.brobot.brobotREST.database.state.state.State;
 import com.brobot.brobotREST.database.state.stateObject.otherStateObjects.StateRegion;
 import com.brobot.brobotREST.database.state.stateObject.stateImageObject.StateImageObject;
+import com.brobot.brobotREST.manageStates.StateMemory;
 import com.brobot.brobotREST.primatives.enums.StateEnum;
 import com.brobot.brobotREST.web.services.StateService;
 import org.springframework.stereotype.Component;
 
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 
 import static com.brobot.brobotREST.actions.ActionOptions.Action.*;
 import static com.brobot.brobotREST.manageStates.UnknownState.Enum.UNKNOWN;
@@ -20,19 +26,21 @@ public class CommonActions {
 
     private Action action;
     private StateService stateService;
+    private StateMemory stateMemory;
 
-    public CommonActions(Action action, StateService stateService) {
+    public CommonActions(Action action, StateService stateService, StateMemory stateMemory) {
         this.action = action;
         this.stateService = stateService;
+        this.stateMemory = stateMemory;
     }
 
-    public boolean click(double maxWait, StateImageObject stateImageObject) {
+    public boolean click(double maxWait, StateImageObject... stateImageObjects) {
         return action.perform(
                 new ActionOptions.Builder()
                         .setAction(ActionOptions.Action.CLICK)
                         .setMaxWait(maxWait)
                         .build(),
-                stateImageObject).isSuccess();
+                stateImageObjects).isSuccess();
     }
 
     public boolean click(Region region) {
@@ -56,7 +64,7 @@ public class CommonActions {
                 .clickUntil(ActionOptions.ClickUntil.OBJECTS1_VANISH)
                 .setPauseBetweenActions(pauseBetweenClicks)
                 .setPauseBetweenActionRepetitions(pauseBetweenClicks)
-                .timesToRepeatActionUntil(timesToClick)
+                .timesToRepeatActionUntilConditionIsMet(timesToClick)
                 .build();
         ObjectCollection objectCollection = new ObjectCollection.Builder()
                 .withImages(image)
@@ -85,21 +93,31 @@ public class CommonActions {
                 stateImageObject).isSuccess();
     }
 
+    public boolean waitState(double maxWait, StateEnum stateEnum, ActionOptions.Action actionType) {
+        if (stateEnum == UNKNOWN) return true;
+        Optional<State> state = stateService.findByName(stateEnum);
+        if (state.isEmpty()) return false;
+        return action.perform(
+                new ActionOptions.Builder()
+                        .setAction(actionType)
+                        .setMaxWait(maxWait)
+                        .build(),
+                new ObjectCollection.Builder()
+                        .withAllStateImages(state.get())
+                        .build())
+                .isSuccess();
+    }
+
     public boolean findState(double maxWait, StateEnum stateEnum) {
         System.out.print("\n__findState:"+stateEnum+"__ ");
         stateService.findByName(stateEnum).ifPresent(
                 state -> System.out.println("prob="+state.getProbabilityExists()));
-        if (stateEnum == UNKNOWN) return true;
-        Optional<State> state = stateService.findByName(stateEnum);
-        return state.filter(value -> action.perform(
-                new ActionOptions.Builder()
-                        .setAction(FIND)
-                        .setMaxWait(maxWait)
-                        .build(),
-                new ObjectCollection.Builder()
-                        .withAllStateImages(value)
-                        .build())
-                .isSuccess()).isPresent();
+        return waitState(maxWait, stateEnum, FIND);
+    }
+
+    public boolean waitVanishState(double maxWait, StateEnum stateEnum) {
+        System.out.print("\n__waitVanishState:"+stateEnum+"__ ");
+        return waitState(maxWait, stateEnum, VANISH);
     }
 
     public void highlightRegion(double seconds, StateRegion region) {
@@ -122,7 +140,7 @@ public class CommonActions {
         ActionOptions actionOptions = new ActionOptions.Builder()
                 .setAction(ActionOptions.Action.CLICK)
                 .clickUntil(ActionOptions.ClickUntil.OBJECTS2_APPEAR)
-                .timesToRepeatActionUntil(repeatClickTimes)
+                .timesToRepeatActionUntilConditionIsMet(repeatClickTimes)
                 .setPauseBetweenActions(pauseBetweenClicks)
                 .build();
         ObjectCollection objectsToClick = new ObjectCollection.Builder()
@@ -139,7 +157,7 @@ public class CommonActions {
         ActionOptions actionOptions = new ActionOptions.Builder()
                 .setAction(ActionOptions.Action.CLICK)
                 .clickUntil(ActionOptions.ClickUntil.OBJECTS2_APPEAR)
-                .timesToRepeatActionUntil(repeatClickTimes)
+                .timesToRepeatActionUntilConditionIsMet(repeatClickTimes)
                 .setPauseBetweenActions(pauseBetweenClicks)
                 .build();
         ObjectCollection objectsToClick = new ObjectCollection.Builder()
@@ -149,6 +167,19 @@ public class CommonActions {
                 .withImages(toAppear)
                 .build();
         return action.perform(actionOptions, objectsToClick, objectsToAppear).isSuccess();
+    }
+
+    public boolean drag(Location from, Location to) {
+        ActionOptions actionOptions = new ActionOptions.Builder()
+                .setAction(ActionOptions.Action.DRAG)
+                .build();
+        ObjectCollection fromOC = new ObjectCollection.Builder()
+                .withLocations(from)
+                .build();
+        ObjectCollection toOC = new ObjectCollection.Builder()
+                .withLocations(to)
+                .build();
+        return action.perform(actionOptions, fromOC, toOC).isSuccess();
     }
 
     public void dragCenterToOffset(Region region, int plusX, int plusY) {
@@ -202,7 +233,7 @@ public class CommonActions {
         ActionOptions getText = new ActionOptions.Builder()
                 .setAction(ActionOptions.Action.GET_TEXT)
                 .getTextUntil(ActionOptions.GetTextUntil.TEXT_APPEARS)
-                .timesToRepeatActionUntil(3)
+                .timesToRepeatActionUntilConditionIsMet(3)
                 .setPauseBetweenActionRepetitions(.5)
                 .build();
         ObjectCollection textRegion = new ObjectCollection.Builder()
@@ -218,6 +249,58 @@ public class CommonActions {
                 .setPauseBetweenActions(pause)
                 .build();
         return action.perform(click, objectToClick).isSuccess();
+    }
+
+    public boolean clickXTimes(int times, double pause, Region reg) {
+        ActionOptions click = new ActionOptions.Builder()
+                .setAction(CLICK)
+                .setNumberOfActions(times)
+                .setPauseBetweenActions(pause)
+                .build();
+        ObjectCollection regs = new ObjectCollection.Builder()
+                .withRegions(reg)
+                .build();
+        return action.perform(click, regs).isSuccess();
+    }
+
+    public boolean moveMouseTo(Location location) {
+        ActionOptions move = new ActionOptions.Builder()
+                .setAction(MOVE)
+                .build();
+        ObjectCollection loc = new ObjectCollection.Builder()
+                .withLocations(location)
+                .build();
+        return action.perform(move, loc).isSuccess();
+    }
+
+    public boolean swipeToOppositePosition(Region region, Position grabPosition) {
+        Location grabLocation = new Location(region, grabPosition);
+        ActionOptions drag = new ActionOptions.Builder()
+                .setAction(ActionOptions.Action.DRAG)
+                .pauseAfterEnd(.5)
+                .build();
+        ObjectCollection from = new ObjectCollection.Builder()
+                .withLocations(grabLocation)
+                .build();
+        ObjectCollection to = new ObjectCollection.Builder()
+                .withLocations(grabLocation.getOpposite())
+                .build();
+        return action.perform(drag, from, to).isSuccess();
+    }
+
+    public void setStateProbabilities(int probability, StateEnum... stateEnums) {
+        for (StateEnum stateEnum : stateEnums) {
+            stateService.findByName(stateEnum).ifPresent(state -> state.setProbabilityExists(probability));
+        }
+    }
+
+    public boolean gotoPreviousState(StateEnum currentState, BooleanSupplier booleanSupplier) {
+        if (!booleanSupplier.getAsBoolean()) return false;
+        stateService.findByName(currentState)
+                .flatMap(State::getPreviousState)
+                .flatMap(prev -> stateService.findByName(prev))
+                .ifPresent(prevState -> prevState.setProbabilityExists(100));
+        return true;
     }
 
 }

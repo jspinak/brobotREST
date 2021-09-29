@@ -1,6 +1,6 @@
 package com.brobot.brobotREST.manageStates;
 
-import com.brobot.brobotREST.actions.CommonActions;
+import com.brobot.brobotREST.actions.composites.CommonActions;
 import com.brobot.brobotREST.primatives.enums.StateEnum;
 import com.brobot.brobotREST.web.services.StateService;
 import org.springframework.stereotype.Component;
@@ -34,6 +34,12 @@ public class StateFinder {
     // for this reason, StateFinder should always look for states potentially on top
     // - faster methods can be called directly within methods
     // - if there is a blocking state it needs to be acted on first
+
+    // can two different states have the same identifying images? yes, this is possible: two states that
+    // look alike but when acted on produce very different results from the same actions.
+    // this shouldn't be an issue unless we are lost and need to find the active state.
+    // in this case, brobot should recognize duplicate state images and use the state memory to
+    // identify the correct state (by matching the previously visited states with the transition paths).
     public Set<StateEnum> getActiveStates() {
         Set<StateEnum> activeStates = new HashSet<>(stateMemory.getActiveStates());
         Set<StateEnum> activeBlockingStates = new HashSet<>();
